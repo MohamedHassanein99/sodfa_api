@@ -35,10 +35,10 @@ class AnalysisResource extends JsonResource
                     'monthly' => $this['revenue_this_month'],
                     'yearly'  => $this['revenue_this_year'],
                 ],
-                'pending_orders' => [
-                    'today' => $this['pending_orders_today'],
-                    'month' => $this['pending_orders_month'],
-                    'year'  => $this['pending_orders_year'],
+                'processing_orders' => [
+                    'today' => $this['processing_orders_today'],
+                    'month' => $this['processing_orders_month'],
+                    'year'  => $this['processing_orders_year'],
                 ],
             ],
             'top_3_best_selling' => $this['top_3_best_selling']->map(function ($product) {

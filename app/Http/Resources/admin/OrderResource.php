@@ -4,6 +4,7 @@ namespace App\Http\Resources\admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use App\Models\user\Order;
 
 class OrderResource extends JsonResource
 {
@@ -22,6 +23,10 @@ class OrderResource extends JsonResource
             'address' => $this->address,
             'total_price' => $this->total_price,
             'status' => $this->status,
+            'cancellation_reason' => $this->when(
+                $this->status === 'canceled',
+                $this->cancellation_reason
+            ),
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
             'payment_method' => $this->whenLoaded('paymentMethod', function () {
@@ -44,4 +49,5 @@ class OrderResource extends JsonResource
             }),
         ];
     }
+
 }

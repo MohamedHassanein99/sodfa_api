@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('carts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->string('status')->default('pending');
+            $table->string('status')->default('processing');
             $table->decimal('price', 10, 2)->default(0);
             $table->timestamp('expires_at')->nullable();
             $table->timestamps();

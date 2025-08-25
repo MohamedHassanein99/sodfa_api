@@ -9,13 +9,11 @@ use App\Http\Resources\admin\OrderResource;
 
 class OrderController extends Controller
 {
-
-
     public function index(Request $request)
     {
         $query = Order::with('orderItems.product', 'paymentMethod');
 
-        if ($request->has('status') && in_array($request->status, ['pending', 'processing', 'delivered'])) {
+        if ($request->has('status') && in_array($request->status, ['processing', 'shipped', 'delivered', 'canceled'])) {
             $query->where('status', $request->status);
         }
 
@@ -32,9 +30,10 @@ class OrderController extends Controller
 
         $stats = [
             'total' => Order::count(),
-            'pending' => Order::where('status', 'pending')->count(),
             'processing' => Order::where('status', 'processing')->count(),
+            'shipped' => Order::where('status', 'shipped')->count(),
             'delivered' => Order::where('status', 'delivered')->count(),
+            'canceled' => Order::where('status', 'canceled')->count(),
         ];
 
         return response()->json([
@@ -50,16 +49,44 @@ class OrderController extends Controller
         }
 
         $request->validate([
-            'status' => 'required|string|in:pending,processing,delivered,canceled',
+            'status' => 'required|string|in:processing,shipped,delivered,canceled',
+            'cancellation_reason' => 'nullable|string|max:500'
         ]);
 
-        $order->update($request->only('status'));
+        $newStatus = $request->status;
+
+        if ($newStatus === 'canceled') {
+            if ($order->status !== 'processing') {
+                return response()->json([
+                    'message' => 'Orders can only be canceled if they are in processing status.'
+                ], 422);
+            }
+
+            if (empty($request->cancellation_reason)) {
+                return response()->json([
+                    'message' => 'Cancellation reason is required when canceling an order.'
+                ], 422);
+            }
+
+            $order->update([
+                'status' => 'canceled',
+                'cancellation_reason' => $request->cancellation_reason
+            ]);
+        } else {
+            $order->update([
+                'status' => $newStatus,
+                'cancellation_reason' => null
+            ]);
+        }
 
         return response()->json([
             'order' => new OrderResource($order->load('orderItems.product', 'paymentMethod')),
-            'message' => 'Order updated successfully by admin'
+            'message' => "Order updated successfully by admin"
         ]);
     }
+
+
+
 
     public function destroy(Order $order)
     {

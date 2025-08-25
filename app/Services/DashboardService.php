@@ -28,10 +28,10 @@ class DashboardService
         $ordersMonth  = Order::whereBetween('created_at', [$monthStart, Carbon::now()])->count();
         $ordersYear   = Order::whereBetween('created_at', [$yearStart, Carbon::now()])->count();
 
-        // Pending orders
-        $pendingOrdersToday = Order::where('status', 'pending')->whereDate('created_at', $today)->count();
-        $pendingOrdersMonth = Order::where('status', 'pending')->whereBetween('created_at', [$monthStart, Carbon::now()])->count();
-        $pendingOrdersYear  = Order::where('status', 'pending')->whereBetween('created_at', [$yearStart, Carbon::now()])->count();
+        // Processing orders
+        $processingOrdersToday = Order::where('status', 'processing')->whereDate('created_at', $today)->count();
+        $processingOrdersMonth = Order::where('status', 'processing')->whereBetween('created_at', [$monthStart, Carbon::now()])->count();
+        $processingOrdersYear  = Order::where('status', 'processing')->whereBetween('created_at', [$yearStart, Carbon::now()])->count();
 
         // ================= Revenue =================
         $totalRevenue  = Order::where('status', 'delivered')->sum('total_price');
@@ -56,10 +56,10 @@ class DashboardService
                 'today' => $ordersToday,
                 'month' => $ordersMonth,
                 'year'  => $ordersYear,
-                'pending' => [
-                    'today' => $pendingOrdersToday,
-                    'month' => $pendingOrdersMonth,
-                    'year'  => $pendingOrdersYear,
+                'processing' => [
+                    'today' => $processingOrdersToday,
+                    'month' => $processingOrdersMonth,
+                    'year'  => $processingOrdersYear,
                 ],
             ],
             'revenue' => [

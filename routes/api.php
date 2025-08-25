@@ -49,6 +49,7 @@ Route::middleware('api' , 'auth:sanctum')->group(function () {
     Route::post('user/orders' , [OrderController::class , 'store']);
     Route::get('user/orders' , [OrderController::class , 'index']);
     Route::get('user/orders/{order}' , [OrderController::class , 'show']);
+    Route::patch('user/orders/{order}' , [OrderController::class , 'cancel']);
 
     Route::get('user/products' , [UserProductController::class , 'allProducts']);
     Route::get('home' , [UserProductController::class , 'home']);

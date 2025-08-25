@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('city');
             $table->string('address')->nullable();
             $table->decimal('total_price', 10, 2)->default(0);
-            $table->string('status')->default('pending'); // pending, processing, delivered
+            $table->string('status')->default('processing'); // processing, delivered
             $table->timestamps();
         });
     }

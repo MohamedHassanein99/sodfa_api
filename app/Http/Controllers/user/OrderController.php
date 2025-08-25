@@ -41,7 +41,7 @@ class OrderController extends Controller
     public function store(OrderRequest $request)
     {
         $cart = Cart::where('user_id', auth()->id())
-            ->where('status', 'pending')
+            ->where('status', 'processing')
             ->with('cartItems.product')
             ->first();
 
@@ -64,7 +64,7 @@ class OrderController extends Controller
                 'email' => $request->email,
                 'address' => $request->address,
                 'total_price' => $subtotal,
-                'status' => 'pending'
+                'status' => 'processing'
             ]);
 
             if ($request->hasFile('receipt_image')) {
@@ -75,7 +75,7 @@ class OrderController extends Controller
                 'order_id' => $order->id,
                 'payment_method' => $request->payment_method,
                 'receipt_image' => $receiptPath ?? null,
-                'status' => 'pending',
+                'status' => 'processing',
             ]);
 
             foreach ($cart->cartItems as $item) {
@@ -108,4 +108,32 @@ class OrderController extends Controller
             ], 500);
         }
     }
+
+    public function cancel(Request $request, Order $order)
+{
+    if ($order->user_id !== auth()->id()) {
+        return response()->json(['message' => 'Unauthorized'], 403);
+    }
+
+    if (!in_array($order->status, ['processing'])) {
+        return response()->json([
+            'message' => 'Order cannot be canceled at this stage.'
+        ], 422);
+    }
+
+    $request->validate([
+        'cancellation_reason' => 'required|string|max:255',
+    ]);
+
+    $order->update([
+        'status' => 'canceled',
+        'cancellation_reason' => $request->cancellation_reason,
+    ]);
+
+    return response()->json([
+        'message' => 'Order canceled successfully',
+        'order'   => new OrderResource($order)
+    ]);
+}
+
 }

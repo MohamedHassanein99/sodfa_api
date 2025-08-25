@@ -15,7 +15,7 @@ class CartController extends Controller
     public function index()
     {
         $cart = Cart::where('user_id', auth()->id())
-            ->where('status', 'pending')
+            ->where('status', 'processing')
             ->with('cartItems.product')
             ->first();
 
@@ -42,7 +42,7 @@ class CartController extends Controller
     $product = Product::findOrFail($request->product_id);
 
     $cart = User::find(auth()->id())->carts()->firstOrCreate(
-        ['status' => 'pending'],
+        ['status' => 'processing'],
         [
             'price' => 0,
             'expires_at' => now()->addDays(3),
@@ -134,7 +134,7 @@ public function destroy(CartItem $cartItem)
 
 public function clear()
 {
-    $cart = User::find(auth()->id())->carts()->where('status', 'pending')->first();
+    $cart = User::find(auth()->id())->carts()->where('status', 'processing')->first();
 
     if (!$cart) {
         return response()->json([

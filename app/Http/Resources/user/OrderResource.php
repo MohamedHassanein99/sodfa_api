@@ -26,7 +26,14 @@ class OrderResource extends JsonResource
             'total_price'   => $this->total_price,
             'created_at'    => $this->created_at,
             'updated_at'    => $this->updated_at,
+
+            'cancellation_reason' => $this->when(
+                $this->status === 'canceled',
+                $this->cancellation_reason
+            ),
+
             'items'         => OrderItemResource::collection($this->orderItems),
+
             'payment_method'=> [
                 'id'             => $this->paymentMethod->id ?? null,
                 'payment_method' => $this->paymentMethod->payment_method ?? null,
